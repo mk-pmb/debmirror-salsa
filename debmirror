@@ -2947,12 +2947,11 @@ sub cleanup_unknown_files {
     say(": using cache.");
     foreach my $file (sort keys %files) {
       next if (@di_dists && $file =~ m:installer-\w(-|\w)*/current/images/:);
-      if ($files{$file} == 2 && -f $file) {
-        say("deleting $file") if ($verbose);
-        if (! $do_dry_run) {
-          unlink $file or die "unlink $file: $!";
-        }
-      }
+      next unless -f $file;
+      next unless $files{$file} == 2;
+      say("deleting $file") if ($verbose);
+      next if $do_dry_run;
+      unlink $file or die "unlink $file: $!";
     }
   } else {
     say($state_cache_days ? ": full." : ".");
