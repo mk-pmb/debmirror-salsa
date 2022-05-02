@@ -2971,6 +2971,7 @@ sub cleanup_unknown_files {
       $file=~s:^\./::;
       next if ($ignore && $file=~/$ignore/o);
       next if (@di_dists && $file =~ m:installer-\w(-|\w)*/current/images/:);
+      next unless -f $file;
       unless ($files{$file} == 2) {
         if ($use_cache) {
           next;
