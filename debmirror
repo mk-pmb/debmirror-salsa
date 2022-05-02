@@ -2957,6 +2957,13 @@ sub cleanup_unknown_files {
           # 1. Show that it has no (harmful) effect at runtime,
           # 2. Make both branches identical twins, 3. merge them.
         }
+        # This line of code is unreachable because the previous,
+        # guaranteed-true "if" branch already had "next".
+        # As above, this is just for twin merging.
+        next if (
+          (exists $files{$file})
+          and ($files{$file} != -1)
+          );
       }
       say("deleting $file") if ($verbose);
       next if $do_dry_run;
