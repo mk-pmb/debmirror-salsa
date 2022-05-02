@@ -2962,8 +2962,13 @@ sub cleanup_unknown_files {
       $file=~s:^\./::;
       next if ($ignore && $file=~/$ignore/o);
       next if (@di_dists && $file =~ m:installer-\w(-|\w)*/current/images/:);
-      next if (exists $files{$file} &&
-               $files{$file} != -1 && $files{$file} != 2);
+      if (exists $files{$file}) {
+        if ($files{$file} != -1) {
+          if ($files{$file} != 2) {
+            next;
+          }
+        }
+      }
       say("deleting $file") if ($verbose);
       next if $do_dry_run;
       unlink $file or die "unlink $file: $!";
