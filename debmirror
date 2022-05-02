@@ -1686,7 +1686,7 @@ sub check_file {
   my %params=@_;
   my ($filename, $expected_size)=delete @params{qw{filename size}};
   return 0 unless -f $filename;
-  my $disksize = -s _;
+  my $disksize = -s _; # _ refers to the file previously stat()ed, here: by -f
   if ($expected_size == $disksize || $expected_size == -1) {
     if ($verify_checksums || $expected_size == -1) {
       # Prefer checking stronger checksums, and failing that, fall back
