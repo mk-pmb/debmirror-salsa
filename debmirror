@@ -586,6 +586,7 @@ use Storable qw(nstore retrieve);
 use Getopt::Long;
 use File::Temp qw/ tempfile /;
 use File::Path qw(make_path);
+use IO::File;
 use IO::Pipe;
 use IO::Select;
 use String::ShellQuote;
@@ -1726,7 +1727,7 @@ sub check_diff {
   my $ret = 0;
 
   if (-f "$filename.gz") {
-    system_redirect_io("gzip -d", "$filename.gz", "$filename");
+    ungzip_file($filename);
     if ($size == -s $filename) {
       open my $handle, "<", $filename or die "$filename: $!";
       $digest->addfile($handle);
@@ -2503,7 +2504,7 @@ sub get_index {
     }
     if ($got_gz) {
       if (!check_lists("$tempdir/$subdir/$file")) {
-        system_redirect_io("gzip -d", "$tempdir/$subdir/$file.gz", "$tempdir/$subdir/$file");
+        ungzip_file("$tempdir/$subdir/$file");
       }
       if (!check_lists("$tempdir/$subdir/$file.xz") && ! $slow_cpu) {
         system_redirect_io("xz", "$tempdir/$subdir/$file", "$tempdir/$subdir/$file.xz");
@@ -2531,7 +2532,7 @@ sub get_index {
     say("Ignoring missing Release file for $subdir/$file.gz");
     push (@errlog,"Ignoring missing Release file for $subdir/$file.gz\n");
     if (remote_get("$subdir/$file.gz")) {
-      system_redirect_io("gzip -d", "$tempdir/$subdir/$file.gz", "$tempdir/$subdir/$file");
+      ungzip_file("$tempdir/$subdir/$file");
     }
   } else {
     if (-f "$subdir/$file.gz") {
@@ -2595,7 +2596,7 @@ sub update_contents {
   }
 
   # Uncompress the Contents file
-  system_redirect_io("gzip -d", "$tempdir/$subdir/$file.gz", "$tempdir/$subdir/$file");
+  ungzip_file("$tempdir/$subdir/$file");
   # Update it
   fetch_and_apply_diffs(0, $subdir, $file);
   # And compress it again
@@ -3304,6 +3305,55 @@ sub say {
 sub debug {
   print $0.': '.join(' ', @_)."\n" if $debug;
 }
+
+sub file_peek {
+  my ($fn, $maxbytes) = @_;
+  my $buf = '';
+  my $fh = IO::File->new($fn, 'r');
+  if (defined($fh)) {
+    read($fh, $buf, $maxbytes);
+    undef $fh;    # close
+  }
+  return $buf;
+}
+
+sub data_looks_like_plaintext {
+  my ($data) = @_;
+  return 1 if $data =~ m~^Package:~;
+  return 0;
+}
+
+sub ungzip_file { # additional search keyword: gunzip
+  my ($dest) = @_;
+  my $src = $dest . '.gz';
+
+  # Check whether the .gz file is actually plain text.
+  # For details, see: doc/patch_notes/2017/170728.plaintext_packages_gz.md
+  my $plain = 0;
+  if (-z $src) {
+    say("W: archive file seems to be empty: $src");
+    $plain = 1;
+  } elsif (data_looks_like_plaintext(file_peek("$src", 32))) {
+    say("W: archive file looks like plaintext: $src");
+    $plain = 1;
+  }
+
+  my $shq_src = shell_quote($src);
+  my $shq_dest = shell_quote($dest);
+  if ($plain) {
+    shellcmd_or_die("cp --no-target-directory -- $shq_src $shq_dest");
+  } else {
+    if (-e $dest) {
+      # gzip v1.6 can overwrite existing files only with --force, which
+      # we should avoid because it also disables unrelated safety checks.
+      unlink $dest;
+    }
+    shellcmd_or_die("gzip --decompress --keep -- $shq_src");
+  }
+}
+
+
+
 
 =head1 COPYRIGHT
 
