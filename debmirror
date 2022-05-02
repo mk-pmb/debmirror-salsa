@@ -1705,14 +1705,17 @@ sub check_file {
   # to whatever checksums are present and supported, trying to prefer
   # FOObignum over FOOsmallnum.
   my ($summer, $checksum);
+  my $cksum_algo_name = 'no checksum algorithm';
   foreach my $checksum_type ("SHA512", "SHA256", "SHA1", reverse sort keys %params) {
          next unless defined $params{$checksum_type};
          if (lc $checksum_type eq 'md5sum') {
                  $summer=Digest::MD5->new;
+                 $cksum_algo_name = "MD5";
          }
          elsif ($checksum_type=~/^sha(\d+)$/i) {
                  # returns undef on unknown/too large SHA type
                  $summer=Digest::SHA->new($1);
+                 $cksum_algo_name = "SHA-$1";
          }
          if (defined $summer) {
                  $checksum=$params{$checksum_type};
@@ -1725,8 +1728,14 @@ sub check_file {
   open my $handle, "<", $filename or die "$filename: $!";
   $summer->addfile($handle);
   close $handle;
-  return 1 if $checksum eq $summer->hexdigest;
+  my $cksum_on_disk = $summer->hexdigest;
+  return 1 if $checksum eq $cksum_on_disk;
 
+  if ($verbose) {
+    say("Checksum ($cksum_algo_name) mismatch: $filename");
+    say('    expected ' . $checksum);
+    say('    but got  ' . $cksum_on_disk);
+  }
   return 0;
 }
 
