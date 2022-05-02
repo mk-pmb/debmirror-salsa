@@ -2949,15 +2949,14 @@ sub cleanup_unknown_files {
   if ($use_cache) {
     say(": using cache.");
     @filenames = sort keys %files;
-    cleanup_these_unknown_files(@filenames);
   } else {
     say($state_cache_days ? ": full." : ".");
     # Remove all files in the mirror that we don't know about
     @filenames = `find . -type f`;
     chomp @filenames;
     map { s:^\./:: } @filenames;
-    cleanup_these_unknown_files(@filenames);
   }
+  cleanup_these_unknown_files(@filenames);
   # Clean up obsolete files of D-I images
   di_cleanup() if @di_dists;
 }
