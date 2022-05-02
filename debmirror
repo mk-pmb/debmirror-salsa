@@ -1688,15 +1688,17 @@ sub check_file {
   return 0 unless -f $filename;
 
   my $can_check_filesize = ($expected_size != -1);
-  my $size_ok_or_undecided;
   if ($can_check_filesize) {
     my $disksize = -s $filename;
-    $size_ok_or_undecided = ($disksize == $expected_size);
+    return 0 unless $disksize == $expected_size;
   } else {
-    $size_ok_or_undecided = 1;
+    # Empty "else" is a temporary stopgap to make this commit's diff readable.
   }
 
-  if ($size_ok_or_undecided) {
+  if (":TODO: I'll unindent this soon.") {
+    # This "if" no longer has an "else" branch. The always-true "if" here
+    # is a temporary stopgap to make the next commit's diff readable.
+
     if ($verify_checksums || (!$can_check_filesize)) {
       # Prefer checking stronger checksums, and failing that, fall back
       # to whatever checksums are present and supported, trying to prefer
