@@ -1684,11 +1684,11 @@ sub check_field_filters {
 # It will return true if the tests show the file matches.
 sub check_file {
   my %params=@_;
-  my ($filename, $size)=delete @params{qw{filename size}};
+  my ($filename, $expected_size)=delete @params{qw{filename size}};
   return 0 unless -f $filename;
   my $disksize = -s _;
-  if ($size == $disksize || $size == -1) {
-    if ($verify_checksums || $size == -1) {
+  if ($expected_size == $disksize || $expected_size == -1) {
+    if ($verify_checksums || $expected_size == -1) {
       # Prefer checking stronger checksums, and failing that, fall back
       # to whatever checksums are present and supported, trying to prefer
       # FOObignum over FOOsmallnum.
