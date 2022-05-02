@@ -2967,13 +2967,9 @@ sub cleanup_unknown_files {
       $keep = 1 if ($ignore && $file=~/$ignore/o);
       next if $keep;
 
-      unless ($keep) {
-        # This "unless" is now redundant and will be removed next.
-        say("deleting $file") if ($verbose);
-        if (! $do_dry_run) {
-          unlink $file or die "unlink $file: $!";
-        }
-      }
+      say("deleting $file") if ($verbose);
+      next if $do_dry_run;
+      unlink $file or die "unlink $file: $!";
     }
   }
   # Clean up obsolete files of D-I images
