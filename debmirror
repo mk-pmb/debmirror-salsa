@@ -2026,12 +2026,15 @@ sub rsync_extra_get {
 # unlinks stdout target file first to break hard links
 sub system_redirect_io {
   my ($command, $fromfile, $tofile) = @_;
-
   if (-f $tofile) {
     unlink($tofile) or die "unlink($tofile) failed: $!";
   }
-  my $cmd="$command <$fromfile >$tofile";
-  system("$cmd");
+  shellcmd_or_die("$command <$fromfile >$tofile");
+}
+
+sub shellcmd_or_die {
+  my ($cmd) = @_;
+  system($cmd);
   die "Failed: $cmd\n" unless $? == 0;
 }
 
