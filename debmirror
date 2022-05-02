@@ -1741,6 +1741,12 @@ sub check_file_disksize {
   }
 
   unless ($disksize == $expected_size) {
+    if ($verbose) {
+      my $delta = sprintf '%+g', ($disksize - $expected_size);
+      say("Wrong file size: $filename:"
+        . " expected file size $expected_size bytes"
+        . " but found $disksize ($delta)");
+    }
     return 0;
   }
 
