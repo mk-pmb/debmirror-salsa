@@ -2032,7 +2032,7 @@ sub system_redirect_io {
   }
   my $cmd="$command <$fromfile >$tofile";
   system("$cmd");
-  die "Failed: $cmd\n" if ($? != 0);
+  die "Failed: $cmd\n" unless $? == 0;
 }
 
 sub split_dist {
