@@ -1,2 +1,22 @@
-It would probably be cleaner and easier to learn if it took
-apt-style lines to tell where to mirror from and what portions to use.
+
+User Interface
+==============
+
+* It would probably be cleaner and easier to learn if it took
+  apt-style lines to tell where to mirror from and what portions to use.
+
+
+
+Security
+========
+
+* We should offer an option to check ALL the checksums available,
+  rather than just the strongest.
+  * Also the algorithm to determine the strongest hash should be refactored
+    into something nicer.
+
+* Check for potential shell injections:
+  * All `system` calls and all backticks (\`)
+  * Some of them use improvised shell quoting rather than proper `shell_quote`
+
+
