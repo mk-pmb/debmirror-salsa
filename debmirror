@@ -2943,9 +2943,11 @@ sub fetch_and_apply_diffs {
 sub cleanup_unknown_files {
   chdir($mirrordir) or die "cleanup_unknown_files: chdir $mirrordir: $!";
   print("Cleanup mirror") if ($verbose or $progress);
+  my @filenames;
   if ($use_cache) {
     say(": using cache.");
-    foreach my $file (sort keys %files) {
+    @filenames = sort keys %files;
+    foreach my $file (@filenames) {
       next if (@di_dists && $file =~ m:installer-\w(-|\w)*/current/images/:);
       next unless -f $file;
       unless ($files{$file} == 2) {
@@ -2965,9 +2967,10 @@ sub cleanup_unknown_files {
     say($state_cache_days ? ": full." : ".");
     my $ignore = join("|", @ignores);
     # Remove all files in the mirror that we don't know about
-    foreach my $file (`find . -type f`) {
-      chomp $file;
-      $file=~s:^\./::;
+    @filenames = `find . -type f`;
+    chomp @filenames;
+    map { s:^\./:: } @filenames;
+    foreach my $file (@filenames) {
       next if ($ignore && $file=~/$ignore/o);
       next if (@di_dists && $file =~ m:installer-\w(-|\w)*/current/images/:);
       next unless -f $file;
