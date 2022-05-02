@@ -2956,8 +2956,7 @@ sub cleanup_unknown_files {
     }
   } else {
     say($state_cache_days ? ": full." : ".");
-    my $ignore;
-    $ignore = "(".join("|", @ignores).")" if @ignores;
+    my $ignore = join("|", @ignores);
     # Remove all files in the mirror that we don't know about
     foreach my $file (`find . -type f`) {
       chomp $file;
@@ -2965,7 +2964,7 @@ sub cleanup_unknown_files {
       next if (@di_dists && $file =~ m:installer-\w(-|\w)*/current/images/:);
       unless ((exists $files{$file} &&
                $files{$file} != -1 && $files{$file} != 2) or
-              (defined($ignore) && $file=~/$ignore/o)) {
+              ($ignore && $file=~/$ignore/o)) {
         say("deleting $file") if ($verbose);
         if (! $do_dry_run) {
           unlink $file or die "unlink $file: $!";
