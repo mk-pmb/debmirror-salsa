@@ -1687,19 +1687,21 @@ sub check_file {
   my ($filename, $expected_size)=delete @params{qw{filename size}};
   return 0 unless -f $filename;
 
+  my $verify_cksum_for_this_file = $verify_checksums;
   my $can_check_filesize = ($expected_size != -1);
   if ($can_check_filesize) {
     my $disksize = -s $filename;
     return 0 unless $disksize == $expected_size;
   } else {
-    # Empty "else" is a temporary stopgap to make this commit's diff readable.
+    $verify_cksum_for_this_file = 1;
+    # … because we want at least _some_ kind of check.
   }
 
   if (":TODO: I'll unindent this soon.") {
     # This "if" no longer has an "else" branch. The always-true "if" here
     # is a temporary stopgap to make the next commit's diff readable.
 
-    if ($verify_checksums || (!$can_check_filesize)) {
+    if ($verify_cksum_for_this_file) {
       # Prefer checking stronger checksums, and failing that, fall back
       # to whatever checksums are present and supported, trying to prefer
       # FOObignum over FOOsmallnum.
