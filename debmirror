@@ -2941,6 +2941,7 @@ sub fetch_and_apply_diffs {
 # This subroutine is called on pre- and post-cleanup and takes no arguments.
 # It uses some global variables like $files, $mirrordir, @ignores.
 sub cleanup_unknown_files {
+  chdir($mirrordir) or die "cleanup_unknown_files: chdir $mirrordir: $!";
   print("Cleanup mirror") if ($verbose or $progress);
   if ($use_cache) {
     say(": using cache.");
@@ -2955,7 +2956,6 @@ sub cleanup_unknown_files {
     }
   } else {
     say($state_cache_days ? ": full." : ".");
-    chdir($mirrordir) or die "chdir $mirrordir: $!";
     my $ignore;
     $ignore = "(".join("|", @ignores).")" if @ignores;
     # Remove all files in the mirror that we don't know about
