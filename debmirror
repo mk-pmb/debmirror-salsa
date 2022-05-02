@@ -1701,7 +1701,10 @@ sub check_file {
     # This "if" no longer has an "else" branch. The always-true "if" here
     # is a temporary stopgap to make the next commit's diff readable.
 
-    if ($verify_cksum_for_this_file) {
+    return 1 unless $verify_cksum_for_this_file;
+    if (":TODO: I'll unindent this soon.") {
+      # The simple case "else" has been pulled up to make this "if" redundant.
+
       # Prefer checking stronger checksums, and failing that, fall back
       # to whatever checksums are present and supported, trying to prefer
       # FOObignum over FOOsmallnum.
@@ -1727,9 +1730,6 @@ sub check_file {
       $summer->addfile($handle);
       close $handle;
       return 1 if $checksum eq $summer->hexdigest;
-    }
-    else {
-      return 1;
     }
   }
   return 0;
