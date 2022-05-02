@@ -1734,6 +1734,12 @@ sub check_file {
 sub check_file_disksize {
   my ($filename, $expected_size) = @_;
   my $disksize = -s $filename;
+  unless ($disksize >= 0) {
+    # This sub is expected to be called on files whose existence has already
+    # been checked, so we have good reason to panic.
+    die("Failed to measure file size for: $filename");
+  }
+
   unless ($disksize == $expected_size) {
     return 0;
   }
