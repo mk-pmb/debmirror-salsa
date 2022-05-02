@@ -1685,7 +1685,10 @@ sub check_field_filters {
 sub check_file {
   my %params=@_;
   my ($filename, $expected_size)=delete @params{qw{filename size}};
-  return 0 unless -f $filename;
+  unless (-f $filename) {
+    say("Missing file: $filename") if $verbose;
+    return 0;
+  }
 
   my $verify_cksum_for_this_file = $verify_checksums;
   my $can_check_filesize = ($expected_size != -1);
