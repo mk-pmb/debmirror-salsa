@@ -2961,9 +2961,10 @@ sub cleanup_unknown_files {
       chomp $file;
       $file=~s:^\./::;
       next if (@di_dists && $file =~ m:installer-\w(-|\w)*/current/images/:);
-      my $keep = ((exists $files{$file} &&
-               $files{$file} != -1 && $files{$file} != 2) or
-              ($ignore && $file=~/$ignore/o));
+      my $keep = 0;
+      $keep = 1 if (exists $files{$file} &&
+               $files{$file} != -1 && $files{$file} != 2);
+      $keep = 1 if ($ignore && $file=~/$ignore/o);
       unless ($keep) {
         say("deleting $file") if ($verbose);
         if (! $do_dry_run) {
