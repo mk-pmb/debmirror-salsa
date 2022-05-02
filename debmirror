@@ -1685,9 +1685,7 @@ sub check_field_filters {
 sub check_file {
   my %params=@_;
   my ($filename, $size)=delete @params{qw{filename size}};
-  if (! -f $filename) {
-    return 0;
-  }
+  return 0 unless -f $filename;
   my $disksize = -s _;
   if ($size == $disksize || $size == -1) {
     if ($verify_checksums || $size == -1) {
