@@ -1687,7 +1687,14 @@ sub check_file {
   my ($filename, $expected_size)=delete @params{qw{filename size}};
   return 0 unless -f $filename;
   my $disksize = -s $filename;
-  if ($expected_size == $disksize || $expected_size == -1) {
+
+  my $size_ok_or_undecided = (
+    $expected_size == $disksize
+    ||
+    $expected_size == -1
+    );
+
+  if ($size_ok_or_undecided) {
     if ($verify_checksums || $expected_size == -1) {
       # Prefer checking stronger checksums, and failing that, fall back
       # to whatever checksums are present and supported, trying to prefer
