@@ -588,6 +588,7 @@ use File::Temp qw/ tempfile /;
 use File::Path qw(make_path);
 use IO::Pipe;
 use IO::Select;
+use String::ShellQuote;
 use Fcntl;
 use LockFile::Simple;
 use Compress::Zlib;
@@ -2029,7 +2030,9 @@ sub system_redirect_io {
   if (-f $tofile) {
     unlink($tofile) or die "unlink($tofile) failed: $!";
   }
-  shellcmd_or_die("$command <$fromfile >$tofile");
+  $command .= " <" . shell_quote($fromfile);
+  $command .= " >" . shell_quote($tofile);
+  shellcmd_or_die($command);
 }
 
 sub shellcmd_or_die {
