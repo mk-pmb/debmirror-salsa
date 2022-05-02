@@ -1686,11 +1686,11 @@ sub check_file {
   my %params=@_;
   my ($filename, $expected_size)=delete @params{qw{filename size}};
   return 0 unless -f $filename;
-  my $disksize = -s $filename;
 
   my $can_check_filesize = ($expected_size != -1);
   my $size_ok_or_undecided;
   if ($can_check_filesize) {
+    my $disksize = -s $filename;
     $size_ok_or_undecided = ($disksize == $expected_size);
   } else {
     $size_ok_or_undecided = 1;
