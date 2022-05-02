@@ -2951,15 +2951,7 @@ sub cleanup_unknown_files {
       unless ($files{$file} == 2) {
         if ($use_cache) {
           next;
-          # The condition is always true here, so this "if" and its
-          # brackets and the "next"'s indentation are redundant.
-          # The idea behind this code is:
-          # 1. Show that it has no (harmful) effect at runtime,
-          # 2. Make both branches identical twins, 3. merge them.
         }
-        # This line of code is unreachable because the previous,
-        # guaranteed-true "if" branch already had "next".
-        # As above, this is just for twin merging.
         next if (
           (exists $files{$file})
           and ($files{$file} != -1)
@@ -2982,11 +2974,6 @@ sub cleanup_unknown_files {
       unless ($files{$file} == 2) {
         if ($use_cache) {
           next;
-          # The condition is always false here, so this "if" and the "next"
-          # are redundant.
-          # The idea behind this code is:
-          # 1. Show that it has no (harmful) effect at runtime,
-          # 2. Make both branches identical twins, 3. merge them.
         }
         next if (
           (exists $files{$file})
