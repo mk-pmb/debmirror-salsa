@@ -1693,8 +1693,7 @@ sub check_file {
   my $verify_cksum_for_this_file = $verify_checksums;
   my $can_check_filesize = ($expected_size != -1);
   if ($can_check_filesize) {
-    my $disksize = -s $filename;
-    return 0 unless $disksize == $expected_size;
+    return 0 unless check_file_disksize($filename, $expected_size);
   } else {
     $verify_cksum_for_this_file = 1;
     # … because we want at least _some_ kind of check.
@@ -1730,6 +1729,18 @@ sub check_file {
 
   return 0;
 }
+
+
+sub check_file_disksize {
+  my ($filename, $expected_size) = @_;
+  my $disksize = -s $filename;
+  unless ($disksize == $expected_size) {
+    return 0;
+  }
+
+  return 1;
+}
+
 
 # Check uncompressed diff content against sha1sum from Index file.
 sub check_diff {
