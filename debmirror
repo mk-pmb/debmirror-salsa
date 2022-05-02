@@ -2981,11 +2981,10 @@ sub cleanup_unknown_files {
           # 1. Show that it has no (harmful) effect at runtime,
           # 2. Make both branches identical twins, 3. merge them.
         }
-        if ($files{$file} != -1) {
-          if (exists $files{$file}) {
-            next;
-          }
-        }
+        next if (
+          (exists $files{$file})
+          and ($files{$file} != -1)
+          );
       }
       say("deleting $file") if ($verbose);
       next if $do_dry_run;
