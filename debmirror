@@ -2960,10 +2960,10 @@ sub cleanup_unknown_files {
     foreach my $file (`find . -type f`) {
       chomp $file;
       $file=~s:^\./::;
+      next if ($ignore && $file=~/$ignore/o);
       next if (@di_dists && $file =~ m:installer-\w(-|\w)*/current/images/:);
       next if (exists $files{$file} &&
                $files{$file} != -1 && $files{$file} != 2);
-      next if ($ignore && $file=~/$ignore/o);
       say("deleting $file") if ($verbose);
       next if $do_dry_run;
       unlink $file or die "unlink $file: $!";
