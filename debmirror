@@ -1688,14 +1688,16 @@ sub check_file {
   return 0 unless -f $filename;
   my $disksize = -s $filename;
 
-  my $size_ok_or_undecided = (
-    $expected_size == $disksize
-    ||
-    $expected_size == -1
-    );
+  my $can_check_filesize = ($expected_size != -1);
+  my $size_ok_or_undecided;
+  if ($can_check_filesize) {
+    $size_ok_or_undecided = ($disksize == $expected_size);
+  } else {
+    $size_ok_or_undecided = 1;
+  }
 
   if ($size_ok_or_undecided) {
-    if ($verify_checksums || $expected_size == -1) {
+    if ($verify_checksums || (!$can_check_filesize)) {
       # Prefer checking stronger checksums, and failing that, fall back
       # to whatever checksums are present and supported, trying to prefer
       # FOObignum over FOOsmallnum.
