@@ -602,6 +602,8 @@ use URI; # for URI::data. see doc/patch_notes/2022/220502.waterfox_compat.md
 
 our $version="1:2.29";
 
+die('No NaN support on this platform!') if 'NaN' == 'NaN'; # perldoc perlop
+
 # Yeah, I use too many global variables in this program.
 our $mirrordir;
 our @config_files;
@@ -2982,38 +2984,52 @@ sub fetch_and_apply_diffs {
 sub cleanup_unknown_files {
   chdir($mirrordir) or die "cleanup_unknown_files: chdir $mirrordir: $!";
   print("Cleanup mirror") if ($verbose or $progress);
+  my @filenames;
   if ($use_cache) {
     say(": using cache.");
-    foreach my $file (sort keys %files) {
-      next if (@di_dists && $file =~ m:installer-\w(-|\w)*/current/images/:);
-      if ($files{$file} == 2 && -f $file) {
-        say("deleting $file") if ($verbose);
-        if (! $do_dry_run) {
-          unlink $file or die "unlink $file: $!";
-        }
-      }
-    }
+    @filenames = sort keys %files;
   } else {
     say($state_cache_days ? ": full." : ".");
-    my $ignore = join("|", @ignores);
     # Remove all files in the mirror that we don't know about
-    foreach my $file (`find . -type f`) {
-      chomp $file;
-      $file=~s:^\./::;
-      next if (@di_dists && $file =~ m:installer-\w(-|\w)*/current/images/:);
-      unless ((exists $files{$file} &&
-               $files{$file} != -1 && $files{$file} != 2) or
-              ($ignore && $file=~/$ignore/o)) {
-        say("deleting $file") if ($verbose);
-        if (! $do_dry_run) {
-          unlink $file or die "unlink $file: $!";
-        }
-      }
-    }
+    @filenames = `find . -type f`;
+    chomp @filenames;
+    map { s:^\./:: } @filenames;
   }
+  cleanup_these_unknown_files(@filenames);
   # Clean up obsolete files of D-I images
   di_cleanup() if @di_dists;
 }
+
+
+sub lookup_file_state_cache {
+  my $file = shift;
+  return $files{$file} if exists $files{$file};
+  return 'NaN';
+}
+
+
+sub cleanup_these_unknown_files {
+  my @filenames = @_;
+  my $ignore = join("|", @ignores);
+  foreach my $file (@filenames) {
+    next if ($ignore && $file=~/$ignore/o);
+    next if (@di_dists && $file =~ m:installer-\w(-|\w)*/current/images/:);
+    next unless -f $file;
+    my $cached_state = lookup_file_state_cache($file);
+    unless ($cached_state == 2) {
+      next if $use_cache;
+      unless ($cached_state == -1) {
+        next if exists $files{$file};
+        # :TODO: Someone who understands more about edge cases in DM's cache,
+        #   please try and simplify this further if possible.
+      }
+    }
+    say("deleting $file") if ($verbose);
+    next if $do_dry_run;
+    unlink $file or die "unlink $file: $!";
+  }
+}
+
 
 sub di_skip_dist {
   my $dist=shift;
