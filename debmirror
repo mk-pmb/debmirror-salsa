@@ -2978,9 +2978,7 @@ sub cleanup_these_unknown_files {
     next unless -f $file;
     my $cached_state = lookup_file_state_cache($file);
     unless ($cached_state == 2) {
-      if ($use_cache) {
-        next;
-      }
+      next if $use_cache;
       next if (
         (exists $files{$file})
         and ($cached_state != -1)
