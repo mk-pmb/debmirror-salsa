@@ -598,6 +598,7 @@ use Digest::SHA;
 use if $] lt "5.022", "Net::INET6Glue";
 use Net::FTP;
 use LWP::UserAgent;
+use URI; # for URI::data. see doc/patch_notes/2022/220502.waterfox_compat.md
 
 our $version="1:2.29";
 
