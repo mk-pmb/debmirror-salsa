@@ -602,6 +602,8 @@ use URI; # for URI::data. see doc/patch_notes/2022/220502.waterfox_compat.md
 
 our $version="1:2.29";
 
+die('No NaN support on this platform!') if 'NaN' == 'NaN'; # perldoc perlop
+
 # Yeah, I use too many global variables in this program.
 our $mirrordir;
 our @config_files;
@@ -2961,6 +2963,13 @@ sub cleanup_unknown_files {
 }
 
 
+sub lookup_file_state_cache {
+  my $file = shift;
+  return $files{$file} if exists $files{$file};
+  return 'NaN';
+}
+
+
 sub cleanup_these_unknown_files {
   my @filenames = @_;
   my $ignore = join("|", @ignores);
@@ -2968,13 +2977,14 @@ sub cleanup_these_unknown_files {
     next if ($ignore && $file=~/$ignore/o);
     next if (@di_dists && $file =~ m:installer-\w(-|\w)*/current/images/:);
     next unless -f $file;
-    unless ($files{$file} == 2) {
+    my $cached_state = lookup_file_state_cache($file);
+    unless ($cached_state == 2) {
       if ($use_cache) {
         next;
       }
       next if (
         (exists $files{$file})
-        and ($files{$file} != -1)
+        and ($cached_state != -1)
         );
     }
     say("deleting $file") if ($verbose);
