@@ -2979,10 +2979,11 @@ sub cleanup_these_unknown_files {
     my $cached_state = lookup_file_state_cache($file);
     unless ($cached_state == 2) {
       next if $use_cache;
-      next if (
-        (exists $files{$file})
-        and ($cached_state != -1)
-        );
+      unless ($cached_state == -1) {
+        next if exists $files{$file};
+        # :TODO: Someone who understands more about edge cases in DM's cache,
+        #   please try and simplify this further if possible.
+      }
     }
     say("deleting $file") if ($verbose);
     next if $do_dry_run;
