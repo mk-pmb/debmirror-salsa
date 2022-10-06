@@ -1,8 +1,8 @@
-debmirror (1:2.35+deb11u1) UNRELEASED; urgency=medium
+debmirror (1:2.35+deb11u1) bullseye; urgency=medium
 
   * Add non-free-firmware to the default sections.
 
- -- Colin Watson <cjwatson@debian.org>  Mon, 03 Oct 2022 14:00:22 +0100
+ -- Colin Watson <cjwatson@debian.org>  Thu, 06 Oct 2022 23:15:05 +0100
 
 debmirror (1:2.35) unstable; urgency=medium
 
